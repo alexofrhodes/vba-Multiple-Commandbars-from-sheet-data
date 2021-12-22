@@ -1,4 +1,4 @@
 # RaiseTheBar
-Create workbook and VBE commandbars from sheet data
+Create multiple workbook and VBE commandbars from sheets data.
 
-https://youtu.be/i0UzDqhqVTQ
+file setup to create sample vbe commmandbar for code formatting and more.
