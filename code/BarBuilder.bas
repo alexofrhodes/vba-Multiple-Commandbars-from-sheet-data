@@ -61,13 +61,15 @@ Public Const RightClickMenu = 3
 Public BarLocation As String
 
 Sub NewBar()
-Dim ws As Worksheet
-Set ws = ThisWorkbook.Worksheets("BAR_Main")
-ws.Copy after:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count)
-ws.Name = "BAR_" & lastBar + 1
-ws.Range("A1").CurrentRegion.Offset(1).ClearContents
-ws.Range("I4:I7").ClearContents
-ws.Range("I2") = False
+Dim wsMain As Worksheet
+Set wsMain = ThisWorkbook.Worksheets("BAR_Main")
+Dim wsCopy As Worksheet
+wsMain.Copy after:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count)
+Set wsCopy = ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count)
+wsCopy.Name = "BAR_" & lastBar + 1
+wsCopy.Range("A1").CurrentRegion.Offset(1).ClearContents
+wsCopy.Range("I4:I7").ClearContents
+wsCopy.Range("I2") = False
 End Sub
 
 Function lastBar() As Long
