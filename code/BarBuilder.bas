@@ -5,7 +5,7 @@ Attribute VB_Name = "BarBuilder"
 'GIT                 : https://github.com/alexofrhodes
 'FEEDBACK   : ANASTASIOUALEX@GMAIL.COM
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'PROJECT    : RAISE THE BAR
+'PROJECT    : BAR MAN
 'LICENSE     : MIT
 'PURPOSE    : CREATE COMMAND BARS FROM SHEET DATA
 'VERSION    :  2021/07/31  Initial Release
@@ -43,8 +43,8 @@ Public Const rTARGET_CONTROL = "I7"
 
 Public C_TAG As String
 Public MenuEvent As CVBECommandHandler
-Public CmdBarItem As CommandBarControl
 Public EventHandlers As New Collection
+Public CmdBarItem As CommandBarControl
 Public TargetCommandbar As CommandBar
 Public TargetControl As CommandBarControl
 Public MainMenu As CommandBarControl
@@ -209,6 +209,20 @@ Sub CommandBarBuilder(ws As Worksheet)
     Loop
     Debug.Print "Bar created"
 End Sub
+Sub markControlType(ws As Worksheet)
+'new
+Dim idx As Long: idx = 0
+Dim description() As Variant
+Dim cell As Range
+Set cell = ws.Cells(2, 1)
+    Do Until IsEmpty(cell)
+        idx = idx + 1
+        ReDim Preserve description(1 To idx)
+        description(idx) = IIf(cell.Offset(1) > cell, "PopUp", "Button")
+        Set cell = cell.Offset(1)
+    Loop
+    ws.Range("F2").Resize(UBound(description)) = WorksheetFunction.Transpose(description)
+End Sub
 Sub SetVariables()
     With MenuSheet
         MenuLevel = .Cells(Row, 1)
@@ -272,7 +286,7 @@ Sub CreateButton()
     End With
     If MenuType = VbeMenu Then
         Set MenuEvent.EvtHandler = Application.VBE.Events.CommandBarEvents(CmdBarItem)
-        EventHandlers.Add MenuEvent
+        EventHandlers.Add MenuEvent, CmdBarItem.Caption
     End If
 End Sub
 Sub DirectButton()
@@ -303,14 +317,8 @@ Dim CmdBarItem As CommandBarControl
         EventHandlers.Add MenuEvent
     End If
 End Sub
-Sub DeleteAll()
-    MenuType = 1
-    DeleteControlsAndHandlers
-    MenuType = 2
-    DeleteControlsAndHandlers
-    MenuType = 3
-    DeleteControlsAndHandlers
-End Sub
+
+
 Sub DeleteControlsAndHandlers(ws As Worksheet)
 
 Select Case LCase(ws.Range(rMENU_TYPE))
@@ -343,11 +351,30 @@ Select Case LCase(ws.Range(rMENU_TYPE))
             Set ctrl = Application.CommandBars.FindControl(Tag:=ws.Range(rC_TAG).Text)
         End If
     Loop
-    If MenuType = VbeMenu Then
-        Do Until EventHandlers.Count = 0
-            EventHandlers.Remove 1
-        Loop
-    End If
+    
+'    If MenuType = VbeMenu Then
+'        Do Until EventHandlers.Count = 0
+'            EventHandlers.Remove 1
+'        Loop
+'    End If
+    DeleteHandlersFor ws
+End Sub
+Sub DeleteHandlersFor(ws As Worksheet)
+'new
+On Error Resume Next
+markControlType ws
+Dim cell As Range
+Set cell = ws.Cells(2, 6)
+    Do Until IsEmpty(cell)
+        If cell.Text = "Button" Then
+            EventHandlers.Remove cell.Offset(0, -3).Text
+        End If
+    Set cell = cell.Offset(1)
+    Loop
+    
+End Sub
+Sub Test()
+MsgBox "test"
 End Sub
 Sub ListBars()
 ListWorksheetBars
@@ -438,18 +465,18 @@ Dim codeMod As CodeModule
 Set codeMod = vbComp.CodeModule
     Dim LineNum As Long
     Dim NumLines As Long
-    Dim ProcName As String
+    Dim procName As String
     Dim ProcKind As VBIDE.vbext_ProcKind
     Dim out As Variant
     LineNum = codeMod.CountOfDeclarationLines + 1
     Do Until LineNum >= codeMod.CountOfLines
-        ProcName = codeMod.ProcOfLine(LineNum, ProcKind)
+        procName = codeMod.ProcOfLine(LineNum, ProcKind)
         If out = vbNullString Then
-            out = ProcName
+            out = procName
         Else
-            out = out & vbNewLine & ProcName
+            out = out & vbNewLine & procName
         End If
-        LineNum = codeMod.ProcStartLine(ProcName, ProcKind) + codeMod.ProcCountLines(ProcName, ProcKind) + 1
+        LineNum = codeMod.ProcStartLine(procName, ProcKind) + codeMod.ProcCountLines(procName, ProcKind) + 1
     Loop
     ProcList = out
 End Function

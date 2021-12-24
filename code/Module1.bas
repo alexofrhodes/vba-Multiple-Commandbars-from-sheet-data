@@ -5,6 +5,7 @@ Sub exampleOfControls()
   Dim cbcm As CommandBarComboBox
   Dim cbp As CommandBarPopup
   With Application.VBE.CommandBars("CodeArchive")
+  
     Set cbc = .Controls.Add(ID:=3, Temporary:=True)
     
     Set cbb = .Controls.Add(Temporary:=True)

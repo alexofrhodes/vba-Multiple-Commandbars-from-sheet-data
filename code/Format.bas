@@ -14,7 +14,7 @@ Public Enum LineSplits
 End Enum
 
 Public Type ProcInfo
-    ProcName As String
+    procName As String
     ProcKind As VBIDE.vbext_ProcKind
     ProcStartLine As Long
     ProcBodyLine As Long
@@ -128,14 +128,14 @@ Function ProceduresOfWorkbook(wb As Workbook) As Collection
     Dim ProcKind As VBIDE.vbext_ProcKind
     Dim LineNum As Long
     Dim Coll As New Collection
-    Dim ProcName As String
+    Dim procName As String
     For Each vbComp In wb.VBProject.VBComponents
         With vbComp.CodeModule
             LineNum = .CountOfDeclarationLines + 1
             Do Until LineNum >= .CountOfLines
-                ProcName = .ProcOfLine(LineNum, ProcKind)
-                Coll.Add ProcName
-                LineNum = .ProcStartLine(ProcName, ProcKind) + .ProcCountLines(ProcName, ProcKind) + 1
+                procName = .ProcOfLine(LineNum, ProcKind)
+                Coll.Add procName
+                LineNum = .ProcStartLine(procName, ProcKind) + .ProcCountLines(procName, ProcKind) + 1
             Loop
         End With
     Next
@@ -145,25 +145,25 @@ Function ProceduresOfModule(vbComp As VBComponent) As Collection
     Dim ProcKind As VBIDE.vbext_ProcKind
     Dim LineNum As Long
     Dim Coll As New Collection
-    Dim ProcName As String
+    Dim procName As String
         With vbComp.CodeModule
             LineNum = .CountOfDeclarationLines + 1
             Do Until LineNum >= .CountOfLines
-                ProcName = .ProcOfLine(LineNum, ProcKind)
-                Coll.Add ProcName
-                LineNum = .ProcStartLine(ProcName, ProcKind) + .ProcCountLines(ProcName, ProcKind) + 1
+                procName = .ProcOfLine(LineNum, ProcKind)
+                Coll.Add procName
+                LineNum = .ProcStartLine(procName, ProcKind) + .ProcCountLines(procName, ProcKind) + 1
             Loop
         End With
     Set ProceduresOfModule = Coll
 End Function
-Function ProcedureFirstLine(vbComp As VBComponent, ProcName As String) As Long
+Function ProcedureFirstLine(vbComp As VBComponent, procName As String) As Long
     Dim codeMod As CodeModule
     Set codeMod = vbComp.CodeModule
     Dim n As Long
     Dim s As String
     Dim ProcKind As VBIDE.vbext_ProcKind
     With codeMod
-        For n = .ProcBodyLine(ProcName, ProcKind) To .CountOfLines
+        For n = .ProcBodyLine(procName, ProcKind) To .CountOfLines
             s = .Lines(n, 1)
             If Trim(s) = vbNullString Then
                 ' blank line, skip it
@@ -209,22 +209,22 @@ Error_Handler:
     Debug.Print "The following error has occurred" & vbCrLf & vbCrLf & _
                 "Error Number: " & Err.Number & vbCrLf & _
                 "Error Source: GetProcText" & vbCrLf & _
-                "Error Description: " & Err.Description & _
+                "Error Description: " & Err.description & _
                 Switch(Erl = 0, vbNullString, Erl <> 0, vbCrLf & "Line No: " & Erl)
     Resume Error_Handler_Exit
 End Function
 Function ModuleOfProcedure(wb As Workbook, ProcedureName As String) As VBComponent
     Dim ProcKind As VBIDE.vbext_ProcKind
     Dim LineNum As Long, NumProc As Long
-    Dim ProcName As String
+    Dim procName As String
     Dim vbComp As VBComponent
     For Each vbComp In wb.VBProject.VBComponents
         With vbComp.CodeModule
             LineNum = .CountOfDeclarationLines + 1
             Do Until LineNum >= .CountOfLines
-                ProcName = .ProcOfLine(LineNum, ProcKind)
-                LineNum = .ProcStartLine(ProcName, ProcKind) + .ProcCountLines(ProcName, ProcKind) + 1
-                If UCase(ProcName) = UCase(ProcedureName) Then
+                procName = .ProcOfLine(LineNum, ProcKind)
+                LineNum = .ProcStartLine(procName, ProcKind) + .ProcCountLines(procName, ProcKind) + 1
+                If UCase(procName) = UCase(ProcedureName) Then
                     Set ModuleOfProcedure = vbComp
                     Exit Function
                 End If
@@ -636,14 +636,14 @@ Public Sub SetToNothing()
     If APPEND <> "" Then vbComp.CodeModule.InsertLines LASTLINE, APPEND
 End Sub
 
-Public Function ProcedureEndLine(codeMod As CodeModule, ProcName As String) As Long
+Public Function ProcedureEndLine(codeMod As CodeModule, procName As String) As Long
     Dim ProcKind As VBIDE.vbext_ProcKind
     Dim StartAt As Long
     Dim EndAt As Long
     Dim CountOf As Long
-    StartAt = codeMod.ProcStartLine(ProcName, ProcKind)
-    EndAt = codeMod.ProcStartLine(ProcName, ProcKind) + codeMod.ProcCountLines(ProcName, ProcKind) - 1
-    CountOf = codeMod.ProcCountLines(ProcName, ProcKind)
+    StartAt = codeMod.ProcStartLine(procName, ProcKind)
+    EndAt = codeMod.ProcStartLine(procName, ProcKind) + codeMod.ProcCountLines(procName, ProcKind) - 1
+    CountOf = codeMod.ProcCountLines(procName, ProcKind)
     ProcedureEndLine = EndAt
 End Function
 Public Function ProcedureStartLine(codeMod As CodeModule, ProcedureName As String) As Long
@@ -703,21 +703,21 @@ Set codeMod = vbComp.CodeModule
 End Function
 
 Public Function NumberThisLine(ByVal str As String) As Boolean
-    Dim test As String
-    test = Trim(str)
-    If Len(test) = 0 Then Exit Function
-    If Right(test, 1) = ":" Then Exit Function
-    If IsNumeric(Left(test, 1)) Then Exit Function
-    If test Like "'*" Then Exit Function
-    If test Like "Rem*" Then Exit Function
-    If test Like "Dim*" Then Exit Function
-    If test Like "Sub*" Then Exit Function
-    If test Like "Public*" Then Exit Function
-    If test Like "public*" Then Exit Function
-    If test Like "Function*" Then Exit Function
-    If test Like "End Sub*" Then Exit Function
-    If test Like "End Function*" Then Exit Function
-    If test Like "Debug*" Then Exit Function
+    Dim Test As String
+    Test = Trim(str)
+    If Len(Test) = 0 Then Exit Function
+    If Right(Test, 1) = ":" Then Exit Function
+    If IsNumeric(Left(Test, 1)) Then Exit Function
+    If Test Like "'*" Then Exit Function
+    If Test Like "Rem*" Then Exit Function
+    If Test Like "Dim*" Then Exit Function
+    If Test Like "Sub*" Then Exit Function
+    If Test Like "Public*" Then Exit Function
+    If Test Like "public*" Then Exit Function
+    If Test Like "Function*" Then Exit Function
+    If Test Like "End Sub*" Then Exit Function
+    If Test Like "End Function*" Then Exit Function
+    If Test Like "Debug*" Then Exit Function
     NumberThisLine = True
 End Function
 
@@ -901,7 +901,7 @@ Public Function getArgsFromClipboard() As String
     getArgsFromClipboard = getArgs(ModuleOfProcedure(proc, ActiveCodepaneWorkbook), proc, strip)
 End Function
 
-Public Function getArgs(vbComp As VBComponent, ProcName As String, Optional strip As Boolean) As String
+Public Function getArgs(vbComp As VBComponent, procName As String, Optional strip As Boolean) As String
 '#IMPORTS modReplaceMulti
 '#IMPORTS GetProcedureDeclaration
 '#IMPORTS getProcKind
@@ -912,10 +912,10 @@ Public Function getArgs(vbComp As VBComponent, ProcName As String, Optional stri
     Dim firstPart   As String
     Dim secondPart  As String
     Dim Output      As String
-    str = GetProcedureDeclaration(vbComp.CodeModule, ProcName, getProcKind(vbComp, ProcName))
+    str = GetProcedureDeclaration(vbComp, procName, getProcKind(vbComp, procName))
     str = Replace(str, vbNewLine, "")
     If IsEmpty(str) Then getArgs = "": Exit Function
-    If strip = True Then Output = ProcName & "( _"
+    If strip = True Then Output = procName & "( _"
     If strip = False Then Output = Left(str, InStr(1, str, "(") - 1) & "( _"
     str = Right(str, Len(str) - InStr(1, str, "("))
     str = Left(str, InStrRev(str, ")") - 1)
@@ -1007,18 +1007,18 @@ If vbComp Is Nothing Then Set vbComp = ActiveComp
         Next n
     End With
 End Sub
-Public Sub DebugEnableProcedure(Optional vbComp As VBComponent, Optional ProcName As String)
+Public Sub DebugEnableProcedure(Optional vbComp As VBComponent, Optional procName As String)
 '#IMPORTS ActiveComp
 '#IMPORTS ProcedureEndLine
 '#IMPORTS ProcedureStartLine
 '#IMPORTS ActiveProcName
 If vbComp Is Nothing Then Set vbComp = ActiveComp
-If ProcName = "" Then ProcName = ActiveProcName
+If procName = "" Then procName = ActiveProcName
     Dim n As Long
     Dim s As String
     With vbComp.CodeModule
         For n = ProcedureEndLine(vbComp.CodeModule, ActiveProcName) To _
-                                                                    ProcedureStartLine(vbComp.CodeModule, ProcName) Step -1
+                                                                    ProcedureStartLine(vbComp.CodeModule, procName) Step -1
             s = .Lines(n, 1)
             If Left(Trim(s), 6) = "'Debug" Then
                 LineString = s
@@ -1030,13 +1030,13 @@ If ProcName = "" Then ProcName = ActiveProcName
     End With
 End Sub
 
-Public Sub DebugDisableProcedure(Optional vbComp As VBComponent, Optional ProcName As String)
+Public Sub DebugDisableProcedure(Optional vbComp As VBComponent, Optional procName As String)
 '#IMPORTS ActiveComp
 '#IMPORTS ProcedureEndLine
 '#IMPORTS ProcedureStartLine
 '#IMPORTS ActiveProcName
 If vbComp Is Nothing Then Set vbComp = ActiveComp
-If ProcName = "" Then ProcName = ActiveProcName
+If procName = "" Then procName = ActiveProcName
     Dim n As Long
     Dim s As String
     With vbComp.CodeModule
@@ -1079,7 +1079,7 @@ End Sub
     Application.VBE.ActiveCodePane.CodeModule.InsertLines startLine, code
 End Sub
 '''
-Public Sub FlipMultiple(flipper As String, Optional splitter As String = vbNewLine)
+Public Sub FlipMultiple(Optional flipper As String = "=", Optional splitter As String = vbNewLine)
 '#IMPORTS PartBeforeCodePaneSelection
 '#IMPORTS PartAfterCodePaneSelection
 '#IMPORTS CodepaneSelection
@@ -1308,23 +1308,20 @@ End Function
 
 '''
 
-Public Sub ShowProcedureInfo()
+Public Sub ShowProcedureInfo(vbComp As VBComponent, procName As String)
 '#IMPORTS ProcedureInfo
     Dim vbProj As VBIDE.VBProject
-    Dim vbComp As VBIDE.VBComponent
     Dim codeMod As VBIDE.CodeModule
     Dim CompName As String
-    Dim ProcName As String
     Dim ProcKind As VBIDE.vbext_ProcKind
     Dim PInfo As ProcInfo
-    CompName = "STRINGS_Sort"
-    ProcName = "SortValuesInCell"
+    CompName = vbComp.Name
     ProcKind = vbext_pk_Proc
     Set vbProj = ActiveWorkbook.VBProject
     Set vbComp = vbProj.VBComponents(CompName)
     Set codeMod = vbComp.CodeModule
-    PInfo = ProcedureInfo(ProcName, ProcKind, codeMod)
-    Debug.Print "ProcName: " & PInfo.ProcName
+    PInfo = ProcedureInfo(vbComp, procName, ProcKind)
+    Debug.Print "ProcName: " & PInfo.procName
     Debug.Print "ProcKind: " & CStr(PInfo.ProcKind)
     Debug.Print "ProcStartLine: " & CStr(PInfo.ProcStartLine)
     Debug.Print "ProcBodyLine: " & CStr(PInfo.ProcBodyLine)
@@ -1333,21 +1330,22 @@ Public Sub ShowProcedureInfo()
     Debug.Print "ProcDeclaration: " & PInfo.ProcDeclaration
 End Sub
 
-Public Function ProcedureInfo(ProcName As String, ProcKind As VBIDE.vbext_ProcKind, _
-                       codeMod As VBIDE.CodeModule) As ProcInfo
+Public Function ProcedureInfo(vbComp As VBComponent, procName As String, ProcKind As VBIDE.vbext_ProcKind) As ProcInfo
 '#IMPORTS GetProcedureDeclaration
+    Dim codeMod As VBIDE.CodeModule
+    Set codeMod = vbComp.CodeModule
     Dim PInfo As ProcInfo
     Dim BodyLine As Long
     Dim Declaration As String
     Dim FIRSTLINE As String
-    BodyLine = codeMod.ProcStartLine(ProcName, ProcKind)
+    BodyLine = codeMod.ProcStartLine(procName, ProcKind)
     If BodyLine > 0 Then
         With codeMod
-            PInfo.ProcName = ProcName
+            PInfo.procName = procName
             PInfo.ProcKind = ProcKind
-            PInfo.ProcBodyLine = .ProcBodyLine(ProcName, ProcKind)
-            PInfo.ProcCountLines = .ProcCountLines(ProcName, ProcKind)
-            PInfo.ProcStartLine = .ProcStartLine(ProcName, ProcKind)
+            PInfo.ProcBodyLine = .ProcBodyLine(procName, ProcKind)
+            PInfo.ProcCountLines = .ProcCountLines(procName, ProcKind)
+            PInfo.ProcStartLine = .ProcStartLine(procName, ProcKind)
             FIRSTLINE = .Lines(PInfo.ProcBodyLine, 1)
             If StrComp(Left(FIRSTLINE, Len("Public")), "Public", vbBinaryCompare) = 0 Then
                 PInfo.ProcScope = ScopePublic
@@ -1358,21 +1356,23 @@ Public Function ProcedureInfo(ProcName As String, ProcKind As VBIDE.vbext_ProcKi
             Else
                 PInfo.ProcScope = ScopeDefault
             End If
-            PInfo.ProcDeclaration = GetProcedureDeclaration(codeMod, ProcName, ProcKind, LineSplitKeep)
+            PInfo.ProcDeclaration = GetProcedureDeclaration(vbComp, procName, ProcKind, LineSplitKeep)
         End With
     End If
     ProcedureInfo = PInfo
 End Function
 
-Public Function GetProcedureDeclaration(codeMod As VBIDE.CodeModule, _
-                                        ProcName As String, ProcKind As VBIDE.vbext_ProcKind, _
+Public Function GetProcedureDeclaration(vbComp As VBComponent, _
+                                        procName As String, ProcKind As VBIDE.vbext_ProcKind, _
                                         Optional LineSplitBehavior As LineSplits = LineSplitRemove)
 '#IMPORTS SingleSpace
+Dim codeMod As VBIDE.CodeModule
+Set codeMod = vbComp.CodeModule
     Dim LineNum As Long
     Dim s As String
     Dim Declaration As String
     On Error Resume Next
-    LineNum = codeMod.ProcBodyLine(ProcName, ProcKind)
+    LineNum = codeMod.ProcBodyLine(procName, ProcKind)
     If Err.Number <> 0 Then
         Exit Function
     End If

@@ -43,7 +43,7 @@ InstallationAdd_Err:
         MsgBox "To install the add-in, please close this file and run it again.", _
                64, "Installation"
     Else
-        MsgBox Err.Description & vbCrLf & " Addin installation failed "
+        MsgBox Err.description & vbCrLf & " Addin installation failed "
     End If
 End Sub
 
