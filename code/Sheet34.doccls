@@ -1,0 +1,22 @@
+﻿Public Sub Worksheet_BeforeRightClick(ByVal Target As Range, Cancel As Boolean)
+    If Selection.Cells.count > 1 Then Exit Sub
+    If BarExists("rClickBar") Then
+        CommandBars("rClickBar").ShowPopup
+        Cancel = True
+    End If
+End Sub
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    If Replace(Target.address, "$", "") = rMENU_TYPE Then
+        Range(rBAR_LOCATION).ClearContents
+        Range(rTARGET_CONTROL).ClearContents
+    ElseIf Replace(Target.address, "$", "") = rBAR_LOCATION Then
+        Range(rTARGET_CONTROL).ClearContents
+    End If
+End Sub
+
+Public Sub Worksheet_SelectionChange(ByVal Target As Range)
+    If Selection.Cells.count > 1 Then Exit Sub
+    Calculate
+    openUValiationDropdown
+End Sub

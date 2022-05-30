@@ -1,0 +1,8 @@
+﻿
+Private Sub Workbook_SheetSelectionChange(ByVal sh As Object, ByVal Target As Range)
+openUValiationDropdown
+End Sub
+
+Private Sub Workbook_Open()
+CreateAllBars
+End Sub
